@@ -1,8 +1,10 @@
 package it.polito.tdp.extflightdelays;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Arco;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,7 +30,7 @@ public class FXMLController {
     private Button btnCreaGrafo;
 
     @FXML
-    private ComboBox<?> cmbBoxStati;
+    private ComboBox<String> cmbBoxStati;
 
     @FXML
     private Button btnVisualizzaVelivoli;
@@ -44,17 +46,47 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	
+    	this.model.creaGrafo();
+    	
+    	this.cmbBoxStati.getItems().clear();
+    	this.cmbBoxStati.getItems().addAll(model.getVerticiOrdinati());
+    	this.cmbBoxStati.setValue(model.getVerticiOrdinati().get(0));
+    	
+    	this.txtResult.appendText("Grafo creato\n#vertici: "+model.nVertici()+"\n#archi: "+model.nArchi()+"\n");
+    	
+    	
     }
 
     @FXML
     void doSimula(ActionEvent event) {
+    	this.txtResult.clear();
+    	String stato = this.cmbBoxStati.getValue();
+    	
+    	try {
+	    	Integer gg = Integer.valueOf(this.txtG.getText());
+	    	Integer t = Integer.valueOf(this.txtT.getText());
+	    	this.txtResult.appendText("Turisti per ogni stato: \n");
+	    	
+	    	Map<String, Integer> simulazione =  model.simulazione(stato, gg, t);
+	    	for(String s : simulazione.keySet()) {
+	    		this.txtResult.appendText(s+" "+simulazione.get(s)+"\n");
+    	}
 
+    	}catch(NumberFormatException nfe) {
+    		this.txtResult.appendText("Inserisci valori corretti");
+    	}
     }
 
     @FXML
     void doVisualizzaVelivoli(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	String stato = this.cmbBoxStati.getValue();
+    	this.txtResult.appendText("Stati collegati a "+stato+"\n");
+    	for(Arco a : model.visualizzaVelivoli(stato)) {
+    		this.txtResult.appendText(a.toString()+"\n");
+    	}
     }
 
     @FXML

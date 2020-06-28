@@ -15,7 +15,7 @@ import it.polito.tdp.extflightdelays.model.Flight;
 public class ExtFlightDelaysDAO {
 
 	public List<String> loadAllStates(){
-		String sql = "SELECT distinct(STATE) from airports";
+		String sql = "SELECT distinct(STATE) from airports order by state";
 		List<String> result = new ArrayList<String>();
 
 		try {
@@ -114,5 +114,39 @@ public class ExtFlightDelaysDAO {
 			System.out.println("Errore connessione al database");
 			throw new RuntimeException("Error Connection Database");
 		}
+	}
+
+	public Integer getVelivoliDistinti(String s1, String s2) {
+		
+		String sql = "select count(distinct tail_number) as velivoli " + 
+				"from flights, airports a1, airports a2 " + 
+				"where flights.`ORIGIN_AIRPORT_ID` = a1.id " + 
+				"and flights.`DESTINATION_AIRPORT_ID` = a2.id " + 
+				"and a1.state=? " + 
+				"and a2.state=?";
+		
+		Integer peso = null;
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, s1);
+			st.setString(2, s2);
+			
+			ResultSet rs = st.executeQuery();
+
+			if(rs.next()) {
+				peso=rs.getInt("velivoli");
+			}
+
+			conn.close();
+			return peso;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+		
+	
 	}
 }
